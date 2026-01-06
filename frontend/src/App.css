@@ -1,0 +1,182 @@
+/* --- Global Reset for Auth Pages --- */
+* {
+  box-sizing: border-box;
+}
+
+/* Background Container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+/* Main Card */
+.auth-card {
+  display: flex;
+  width: 900px;
+  max-width: 100%;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-height: 600px;
+}
+
+/* Left Side: Visual */
+.auth-visual {
+  flex: 1;
+  background: linear-gradient(to bottom right, #3498db, #8e44ad);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  position: relative;
+  text-align: center;
+}
+
+.visual-content h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.visual-content p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Decorative Circles */
+.visual-decoration {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -50px;
+  left: -50px;
+}
+.auth-visual::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  bottom: 50px;
+  right: -30px;
+}
+
+/* Right Side: Form */
+.auth-form-section {
+  flex: 1.2;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.form-header p {
+  color: #777;
+  margin-bottom: 30px;
+}
+
+/* Inputs */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.input-group input, 
+.input-group select {
+  width: 100%;
+  padding: 12px 15px 12px 45px; /* Space for icon */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s;
+  background-color: #f9f9f9;
+  outline: none;
+}
+
+.input-group input:focus, 
+.input-group select:focus {
+  border-color: #3498db;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Button */
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: #2a5298;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.auth-btn:hover {
+  background: #1e3c72;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+}
+
+.auth-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.auth-footer a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .auth-card {
+    flex-direction: column;
+    width: 100%;
+  }
+  .auth-visual {
+    padding: 30px;
+  }
+}
