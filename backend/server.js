@@ -1,59 +1,47 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const http = require('http'); 
-const bcrypt = require('bcryptjs');
-require('dotenv').config();
+
+// Import Routes
+const authRoutes = require('./routes/authroutes');
+const taskRoutes = require('./routes/taskroutes');
 
 const app = express();
-const server = http.createServer(app); 
 
+// --- MIDDLEWARE ---
+// 1. Enable CORS so your frontend can talk to your backend
 app.use(cors());
-app.use(express.json());
 
-// --- DATABASE MODEL ---
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  customId: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, default: 'employee' }
-});
-const User = mongoose.model('User', userSchema);
+// 2. Enable JSON parsing (REQUIRED to read data from your website)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // --- ROUTES ---
-
-// 1. TEST ROUTE (Type this in browser: localhost:5000/api/auth/register)
-// This is just to prove the server "sees" the path.
-app.get('/api/auth/register', (req, res) => {
-  res.send("✅ The server recognizes this URL! Now try registering from the React app.");
+// Root Test Route
+app.get('/', (req, res) => {
+  res.send("✅ Backend is Running Successfully!");
 });
 
-// 2. ACTUAL REGISTRATION ROUTE (Used by React)
-app.post('/api/auth/register', async (req, res) => {
-  console.log("Registration request received:", req.body);
-  try {
-    const { name, customId, email, password, role } = req.body;
-    const userExists = await User.findOne({ $or: [{ email }, { customId }] });
-    if (userExists) return res.status(400).json({ msg: "User already exists." });
+// Use defined routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+// --- DATABASE CONNECTION ---
+console.log("⏳ Connecting to MongoDB...");
 
-    const newUser = new User({ name, customId, email, password: hashedPassword, role });
-    await newUser.save();
-    res.status(201).json({ msg: "Registration Successful!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: "Server error" });
-  }
-});
-
-app.get('/', (req, res) => res.send("Backend is Running!"));
-
+// Ensure MONGO_URI is defined in your .env file
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log("❌ DB Error:", err));
+  .then(() => {
+    console.log("✅ MongoDB Connected Successfully");
+    console.log("Connect to Database:", mongoose.connection.name);
+  })
+  .catch(err => {
+    console.error("❌ DB Connection Error:", err.message);
+  });
 
-const PORT = 5000; // Hardcoded to 5000 for now to be sure
-server.listen(PORT, () => console.log(`🚀 SERVER LISTENING ON PORT ${PORT}`));
+// --- START SERVER ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});

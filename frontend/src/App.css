@@ -1,20 +1,127 @@
-/* --- Global Reset for Auth Pages --- */
+/* =========================================
+   1. GLOBAL RESET & BASE STYLES
+   ========================================= */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
-/* Background Container */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f8; /* Default background */
+  color: #333;
+}
+
+/* =========================================
+   2. DASHBOARD LAYOUT (Sidebar & Main)
+   ========================================= */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 260px;
+  background-color: #1e293b; /* Dark Navy */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 25px;
+  background-color: #0f172a;
+  text-align: center;
+  border-bottom: 1px solid #334155;
+}
+
+.sidebar-header .logo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav a:hover {
+  background-color: #334155;
+  color: white;
+  transform: translateX(5px);
+}
+
+.logout-btn {
+  margin-top: auto;
+  margin-bottom: 20px;
+  margin-left: 20px; 
+  margin-right: 20px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
+
+/* --- Main Content --- */
+.content {
+  flex-grow: 1;
+  background-color: #f1f5f9;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   3. AUTH PAGES (Login & Register)
+   ========================================= */
+
+/* The Blue Gradient Background */
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  width: 100%;
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
 }
 
-/* Main Card */
+/* The White Card */
 .auth-card {
   display: flex;
   width: 900px;
@@ -26,7 +133,7 @@
   min-height: 600px;
 }
 
-/* Left Side: Visual */
+/* Left Side (Blue/Purple Visual) */
 .auth-visual {
   flex: 1;
   background: linear-gradient(to bottom right, #3498db, #8e44ad);
@@ -52,28 +159,7 @@
   opacity: 0.9;
 }
 
-/* Decorative Circles */
-.visual-decoration {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  top: -50px;
-  left: -50px;
-}
-.auth-visual::after {
-  content: '';
-  position: absolute;
-  width: 150px;
-  height: 150px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  bottom: 50px;
-  right: -30px;
-}
-
-/* Right Side: Form */
+/* Right Side (The Form) */
 .auth-form-section {
   flex: 1.2;
   padding: 50px;
@@ -105,6 +191,8 @@
   top: 50%;
   transform: translateY(-50%);
   color: #888;
+  font-size: 18px; /* Make icons visible */
+  z-index: 1;
 }
 
 .input-group input, 
@@ -126,7 +214,7 @@
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-/* Button */
+/* Auth Buttons */
 .auth-btn {
   width: 100%;
   padding: 14px;
@@ -147,12 +235,7 @@
   box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
 }
 
-.auth-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* Footer */
+/* Footer Links */
 .auth-footer {
   text-align: center;
   margin-top: 20px;
@@ -170,13 +253,14 @@
   text-decoration: underline;
 }
 
-/* Mobile Responsiveness */
+/* Mobile Fixes */
 @media (max-width: 768px) {
   .auth-card {
     flex-direction: column;
-    width: 100%;
+    height: auto;
   }
   .auth-visual {
     padding: 30px;
+    min-height: 200px;
   }
 }

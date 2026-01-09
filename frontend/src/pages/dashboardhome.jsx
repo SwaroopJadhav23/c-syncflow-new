@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import RemarksBoard from '../components/remarksboard';
 
 const DashboardHome = () => {
-  // Mock Summary Data (In a real app, you would fetch this from your backend/API)
+  
+  // --- UPDATED LOGIC START ---
+  const [userInfo, setUserInfo] = useState({ username: "User", role: "Employee" });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserInfo({
+        username: parsedUser.username, // <--- This reads the name you just saved
+        role: parsedUser.role || "Employee"
+      });
+    }
+  }, []);
+  // --- UPDATED LOGIC END ---
+
+
+  // Static Data (Mock)
   const summaryData = {
-    userName: "John Doe",
-    userRole: "Employee",
     activeTasks: 5,
     pendingDeadline: "Today",
     nextMeeting: "10:00 AM - Standup",
@@ -16,9 +31,13 @@ const DashboardHome = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: "20px" }}>
-        <h2>🏠 Welcome Back, {summaryData.userName}!</h2>
-        <p style={{ color: "gray" }}>Here is what's happening today at SyncFlow.</p>
+      {/* --- HEADER --- */}
+      <div style={{ marginBottom: "30px" }}>
+        {/* DISPLAY THE DYNAMIC NAME HERE */}
+        <h2 style={{ color: "#1e293b", fontSize: "28px" }}>
+          🏠 Welcome Back, {userInfo.username}!
+        </h2>
+        <p style={{ color: "#64748b", marginTop: "5px" }}>Here is what's happening today at SyncFlow.</p>
       </div>
 
       {/* --- DASHBOARD BLOCKS GRID --- */}
@@ -26,29 +45,30 @@ const DashboardHome = () => {
 
         {/* 1. PROFILE BLOCK */}
         <Link to="/dashboard/profile" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ ...styles.card, borderLeft: "5px solid #3498db" }}>
+          <div style={{ ...styles.card, borderLeft: "5px solid #3498db" }}>
             <div style={styles.icon}>👤</div>
-            <h3>My Profile</h3>
-            <p style={styles.text}>{summaryData.userName}</p>
-            <span style={styles.badge}>{summaryData.userRole}</span>
+            <h3 style={styles.cardTitle}>My Profile</h3>
+            {/* Display Dynamic Name Here Too */}
+            <p style={styles.text}>{userInfo.username}</p> 
+            <span style={styles.badge}>{userInfo.role}</span>
           </div>
         </Link>
 
         {/* 2. TIMESHEET BLOCK */}
         <Link to="/dashboard/timesheet" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ ...styles.card, borderLeft: "5px solid #f1c40f" }}>
+          <div style={{ ...styles.card, borderLeft: "5px solid #f1c40f" }}>
             <div style={styles.icon}>📅</div>
-            <h3>Timesheet</h3>
+            <h3 style={styles.cardTitle}>Timesheet</h3>
             <p style={styles.text}><strong>{summaryData.activeTasks}</strong> Tasks Active</p>
-            <p style={{ fontSize: "12px", color: "red" }}>Deadline: {summaryData.pendingDeadline}</p>
+            <p style={{ fontSize: "13px", color: "#e74c3c", fontWeight: "bold" }}>Deadline: {summaryData.pendingDeadline}</p>
           </div>
         </Link>
 
         {/* 3. MEETINGS BLOCK */}
         <Link to="/dashboard/meeting" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ ...styles.card, borderLeft: "5px solid #9b59b6" }}>
+          <div style={{ ...styles.card, borderLeft: "5px solid #9b59b6" }}>
             <div style={styles.icon}>🤝</div>
-            <h3>Meetings</h3>
+            <h3 style={styles.cardTitle}>Meetings</h3>
             <p style={styles.text}>Next: {summaryData.nextMeeting}</p>
             <button style={styles.smallBtn}>Join Now</button>
           </div>
@@ -56,72 +76,98 @@ const DashboardHome = () => {
 
         {/* 4. HOLIDAY BLOCK */}
         <Link to="/dashboard/holiday" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ ...styles.card, borderLeft: "5px solid #2ecc71" }}>
+          <div style={{ ...styles.card, borderLeft: "5px solid #2ecc71" }}>
             <div style={styles.icon}>🎉</div>
-            <h3>Holidays</h3>
+            <h3 style={styles.cardTitle}>Holidays</h3>
             <p style={styles.text}>Upcoming: {summaryData.nextHoliday}</p>
-            <p style={{ fontSize: "12px", color: "gray" }}>No leave requests pending.</p>
+            <p style={{ fontSize: "13px", color: "#94a3b8" }}>No leave requests pending.</p>
           </div>
         </Link>
 
         {/* 5. NOTICE BLOCK */}
         <Link to="/dashboard/notice" style={{ textDecoration: 'none' }}>
-          <div className="card" style={{ ...styles.card, borderLeft: "5px solid #e74c3c" }}>
+          <div style={{ ...styles.card, borderLeft: "5px solid #e74c3c" }}>
             <div style={styles.icon}>📢</div>
-            <h3>Notices</h3>
+            <h3 style={styles.cardTitle}>Notices</h3>
             <p style={styles.text}><strong>{summaryData.unreadNotices}</strong> New Updates</p>
-            <p style={{ fontSize: "12px", color: "gray" }}>Check Company Policies</p>
+            <p style={{ fontSize: "13px", color: "#94a3b8" }}>Check Company Policies</p>
           </div>
         </Link>
 
       </div>
 
       {/* --- WHITEBOARD SECTION --- */}
-      <RemarksBoard pageName="Dashboard Home" />
+      <div style={styles.whiteboardContainer}>
+        <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>📝 Quick Remarks</h3>
+        <RemarksBoard pageName="Dashboard Home" />
+      </div>
     </div>
   );
 };
 
-// --- STYLES OBJECT ---
+// --- STYLES ---
 const styles = {
   gridContainer: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", // Responsive Grid
-    gap: "20px",
-    marginBottom: "30px"
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", 
+    gap: "25px",
+    marginBottom: "40px"
   },
   card: {
-    height: "100%", // Make all cards same height
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    padding: "25px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+    height: "100%",
     textAlign: "left",
-    transition: "transform 0.2s", // Hover effect
+    transition: "transform 0.2s, box-shadow 0.2s",
     cursor: "pointer",
-    color: "#2c3e50" // Text color
+    color: "#334155",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
+  },
+  cardTitle: {
+    margin: "10px 0",
+    fontSize: "18px",
+    fontWeight: "bold",
+    color: "#1e293b"
   },
   icon: {
-    fontSize: "30px",
-    marginBottom: "10px"
+    fontSize: "28px",
+    marginBottom: "5px"
   },
   text: {
     margin: "5px 0",
-    fontSize: "14px"
+    fontSize: "15px",
+    color: "#475569"
   },
   badge: {
-    background: "#ecf0f1",
-    padding: "3px 8px",
-    borderRadius: "10px",
+    display: "inline-block",
+    background: "#f1f5f9",
+    padding: "4px 10px",
+    borderRadius: "20px",
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#2c3e50"
+    color: "#475569",
+    marginTop: "8px"
   },
   smallBtn: {
     background: "#9b59b6",
     color: "white",
     border: "none",
-    padding: "5px 10px",
-    borderRadius: "4px",
+    padding: "8px 16px",
+    borderRadius: "6px",
     fontSize: "12px",
-    marginTop: "5px",
-    cursor: "pointer"
+    marginTop: "10px",
+    cursor: "pointer",
+    fontWeight: "bold"
+  },
+  whiteboardContainer: {
+    backgroundColor: "#ffffff",
+    padding: "25px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
   }
 };
 

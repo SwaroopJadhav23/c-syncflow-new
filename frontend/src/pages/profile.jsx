@@ -1,22 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RemarksBoard from '../components/remarksboard';
 
 const Profile = () => {
-  // State to hold the profile data
+  // Initial State
   const [profileData, setProfileData] = useState({
-    name: "John Doe", 
-    email: "john@syncflow.com",
+    name: "", 
+    email: "",
     phone: "",
     qualification: "",
     institute: "",
     address: "",
-    trainingMode: "Select training mode", // Default value updated
+    trainingMode: "Full Time",
     paymentAmount: "",
-    paymentMode: "Select payment mode", // New field for Payment Mode
+    paymentMode: "Bank Transfer",
     transactionNo: ""
   });
 
-  const [isEditing, setIsEditing] = useState(true); // Control if form is editable
+  const [isEditing, setIsEditing] = useState(false);
+
+  // --- 1. LOAD DATA FROM LOCAL STORAGE ON STARTUP ---
+  useEffect(() => {
+    // Get the user data saved during Login
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setProfileData((prevData) => ({
+        ...prevData,
+        name: parsedUser.username || "", // Load Name from Login
+        email: parsedUser.email || ""    // Load Email from Login
+      }));
+    }
+  }, []);
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -24,18 +38,30 @@ const Profile = () => {
     setProfileData({ ...profileData, [name]: value });
   };
 
-  // Handle Save (Simulated)
+  // --- 2. SAVE NEW NAME TO LOCAL STORAGE ---
   const handleSave = (e) => {
     e.preventDefault();
-    console.log("Saved Data:", profileData);
+
+    // A. Update LocalStorage so Dashboard sees the change
+    const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+    const updatedUser = { 
+      ...storedUser, 
+      username: profileData.name, // UPDATE THE NAME
+      email: profileData.email    // UPDATE THE EMAIL
+    };
+    
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+
+    // B. (Optional) Here you would also send axios.put() to update MongoDB
+
     alert("Profile Details Saved Successfully!");
-    setIsEditing(false); // Switch to "View Mode" after saving
+    setIsEditing(false);
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>👤 User Profile</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{color: '#1e293b'}}>👤 User Profile</h2>
         <button 
           onClick={() => setIsEditing(!isEditing)} 
           style={isEditing ? styles.cancelBtn : styles.editBtn}
@@ -44,7 +70,8 @@ const Profile = () => {
         </button>
       </div>
 
-      <div className="card" style={{ textAlign: 'left', marginBottom: '30px' }}>
+      {/* Profile Form Card */}
+      <div style={styles.card}>
         <form onSubmit={handleSave}>
           <div style={styles.gridContainer}>
             
@@ -116,7 +143,7 @@ const Profile = () => {
               />
             </div>
 
-            {/* Training Mode (Updated Options) */}
+            {/* Training Mode */}
             <div style={styles.formGroup}>
               <label style={styles.label}>Training Mode:</label>
               <select 
@@ -148,7 +175,7 @@ const Profile = () => {
               />
             </div>
 
-            {/* Payment Mode (New Field) */}
+            {/* Payment Mode */}
             <div style={styles.formGroup}>
               <label style={styles.label}>Payment Mode:</label>
               <select 
@@ -186,7 +213,7 @@ const Profile = () => {
                 value={profileData.address} 
                 onChange={handleChange} 
                 placeholder="Full Residential Address"
-                style={{ ...styles.input, height: '60px' }}
+                style={{ ...styles.input, height: '60px', resize: 'none' }}
                 disabled={!isEditing}
               />
             </div>
@@ -203,16 +230,27 @@ const Profile = () => {
       </div>
 
       {/* Whiteboard Component at the bottom */}
-      <RemarksBoard pageName="Profile Page" />
+      <div style={styles.whiteboardContainer}>
+        <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>📝 Profile Remarks</h3>
+        <RemarksBoard pageName="Profile Page" />
+      </div>
     </div>
   );
 };
 
 // --- CSS Styles Object ---
 const styles = {
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    padding: "30px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+    marginBottom: "30px",
+    textAlign: 'left'
+  },
   gridContainer: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr', // Two columns layout
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', // Responsive cols
     gap: '20px',
   },
   formGroup: {
@@ -220,45 +258,54 @@ const styles = {
     flexDirection: 'column',
   },
   label: {
-    fontWeight: 'bold',
-    marginBottom: '5px',
-    color: '#2c3e50',
+    fontWeight: '600',
+    marginBottom: '8px',
+    color: '#34495e',
+    fontSize: '14px'
   },
   input: {
-    padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
+    padding: '12px',
+    border: '1px solid #dfe6e9',
+    borderRadius: '8px',
     fontSize: '14px',
-    backgroundColor: '#fff',
-    width: '100%', // Ensure selects take full width
-    boxSizing: 'border-box'
+    backgroundColor: '#f8f9fa',
+    width: '100%',
+    transition: 'border 0.3s'
   },
   editBtn: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     backgroundColor: '#3498db',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
+    fontWeight: 'bold'
   },
   cancelBtn: {
-    padding: '8px 16px',
+    padding: '10px 20px',
     backgroundColor: '#95a5a6',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
+    fontWeight: 'bold'
   },
   saveBtn: {
-    padding: '10px 20px',
+    padding: '12px 24px',
     backgroundColor: '#27ae60',
     color: 'white',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '16px',
     fontWeight: 'bold',
   },
+  whiteboardContainer: {
+    backgroundColor: "#ffffff",
+    padding: "25px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
+  }
 };
 
 export default Profile;

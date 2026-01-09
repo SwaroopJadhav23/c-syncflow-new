@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Lock, Briefcase, IdCard } from 'lucide-react';
+import { FaUser, FaEnvelope, FaLock, FaBriefcase, FaIdBadge } from 'react-icons/fa'; // Standardized Icons
+import '../App.css'; // Import the CSS styles
 
 const Register = () => {
   const navigate = useNavigate();
   
+  // 1. State keys must match your Backend User Model exactly
   const [formData, setFormData] = useState({ 
-    name: '', 
-    customId: '', 
+    username: '',   // Backend expects 'username', not 'name'
+    employeeId: '', // Backend expects 'employeeId', not 'customId'
     email: '', 
     password: '', 
     role: 'employee' 
@@ -24,15 +26,16 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Sending request to the backend route we just created
+      // 2. Send data to Backend
       const response = await axios.post('http://localhost:5000/api/auth/register', formData);
       
-      // Show success message from backend
-      alert(response.data.msg);
+      // Success
+      alert(response.data.msg || "Registration Successful!");
       navigate('/login');
     } catch (err) {
-      // If the backend sends an error (like 400 or 500), show the message here
-      const errorMsg = err.response?.data?.msg || 'Registration failed. Check if your backend server is running.';
+      // Error Handling
+      console.error("Register Error:", err);
+      const errorMsg = err.response?.data?.msg || 'Registration failed. Check connection.';
       alert(errorMsg);
     } finally {
       setIsLoading(false);
@@ -42,6 +45,8 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        
+        {/* Left Side: Visual */}
         <div className="auth-visual">
           <div className="visual-content">
             <h1>SyncFlow</h1>
@@ -50,6 +55,7 @@ const Register = () => {
           </div>
         </div>
 
+        {/* Right Side: Form */}
         <div className="auth-form-section">
           <div className="form-header">
             <h2>Create Account</h2>
@@ -57,31 +63,70 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
+            
+            {/* Full Name */}
             <div className="input-group">
-              <User className="input-icon" size={18} />
-              <input type="text" name="name" placeholder="Full Name" onChange={handleChange} required />
+              <span className="input-icon"><FaUser /></span>
+              <input 
+                type="text" 
+                name="username" // Matches state key
+                placeholder="Full Name" 
+                value={formData.username}
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
+            {/* Employee ID */}
             <div className="input-group">
-              <IdCard className="input-icon" size={18} />
-              <input type="text" name="customId" placeholder="Employee ID (e.g. EMP01)" onChange={handleChange} required />
+              <span className="input-icon"><FaIdBadge /></span>
+              <input 
+                type="text" 
+                name="employeeId" // Matches state key
+                placeholder="Employee ID (e.g. EMP01)" 
+                value={formData.employeeId}
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
+            {/* Email */}
             <div className="input-group">
-              <Mail className="input-icon" size={18} />
-              <input type="email" name="email" placeholder="Email Address" onChange={handleChange} required />
+              <span className="input-icon"><FaEnvelope /></span>
+              <input 
+                type="email" 
+                name="email" 
+                placeholder="Email Address" 
+                value={formData.email}
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
+            {/* Password */}
             <div className="input-group">
-              <Lock className="input-icon" size={18} />
-              <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+              <span className="input-icon"><FaLock /></span>
+              <input 
+                type="password" 
+                name="password" 
+                placeholder="Password" 
+                value={formData.password}
+                onChange={handleChange} 
+                required 
+              />
             </div>
 
+            {/* Role Selection */}
             <div className="input-group">
-              <Briefcase className="input-icon" size={18} />
-              <select name="role" onChange={handleChange} value={formData.role}>
+              <span className="input-icon"><FaBriefcase /></span>
+              <select 
+                name="role" 
+                onChange={handleChange} 
+                value={formData.role}
+              >
                 <option value="employee">Employee</option>
                 <option value="intern">Intern</option>
+                <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
