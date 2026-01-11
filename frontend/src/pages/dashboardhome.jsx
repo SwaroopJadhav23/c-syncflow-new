@@ -34,10 +34,10 @@ const DashboardHome = () => {
       {/* --- HEADER --- */}
       <div style={{ marginBottom: "30px" }}>
         {/* DISPLAY THE DYNAMIC NAME HERE */}
-        <h2 style={{ color: "#1e293b", fontSize: "28px" }}>
+        <h2 style={{ color: "#1e293b", fontSize: "clamp(1.5rem, 4vw, 28px)" }}>
           🏠 Welcome Back, {userInfo.username}!
         </h2>
-        <p style={{ color: "#64748b", marginTop: "5px" }}>Here is what's happening today at SyncFlow.</p>
+        <p style={{ color: "#64748b", marginTop: "5px", fontSize: "clamp(0.9rem, 2vw, 1rem)" }}>Here is what's happening today at SyncFlow.</p>
       </div>
 
       {/* --- DASHBOARD BLOCKS GRID --- */}
@@ -70,7 +70,15 @@ const DashboardHome = () => {
             <div style={styles.icon}>🤝</div>
             <h3 style={styles.cardTitle}>Meetings</h3>
             <p style={styles.text}>Next: {summaryData.nextMeeting}</p>
-            <button style={styles.smallBtn}>Join Now</button>
+            <button 
+              style={styles.smallBtn}
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = '/dashboard/meeting';
+              }}
+            >
+              Join Now
+            </button>
           </div>
         </Link>
 
@@ -127,6 +135,10 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center"
   },
+  cardHover: {
+    transform: "translateY(-5px)",
+    boxShadow: "0 8px 15px rgba(0,0,0,0.1)"
+  },
   cardTitle: {
     margin: "10px 0",
     fontSize: "18px",
@@ -156,12 +168,14 @@ const styles = {
     background: "#9b59b6",
     color: "white",
     border: "none",
-    padding: "8px 16px",
+    padding: "10px 16px",
     borderRadius: "6px",
-    fontSize: "12px",
+    fontSize: "14px",
     marginTop: "10px",
     cursor: "pointer",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    minHeight: "44px",
+    width: "100%"
   },
   whiteboardContainer: {
     backgroundColor: "#ffffff",

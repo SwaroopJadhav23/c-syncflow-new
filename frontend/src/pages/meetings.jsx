@@ -139,7 +139,8 @@ const styles = {
     padding: "10px",
     borderRadius: "6px",
     minWidth: "200px",
-    fontSize: "13px"
+    fontSize: "13px",
+    flex: "1 1 200px"
   },
   credRow: {
     display: "flex",
@@ -154,25 +155,31 @@ const styles = {
   actionButtons: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px"
+    gap: "8px",
+    flex: "0 0 auto",
+    minWidth: "120px"
   },
   joinBtn: {
     background: "#27ae60", 
     color: "white", 
     border: "none", 
-    padding: "8px 15px", 
+    padding: "10px 15px", 
     borderRadius: "5px", 
     cursor: "pointer",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    minHeight: "44px",
+    fontSize: "14px"
   },
   cancelBtn: {
     background: "#e74c3c", 
     color: "white", 
     border: "none", 
-    padding: "8px 15px", 
+    padding: "10px 15px", 
     borderRadius: "5px", 
     cursor: "pointer",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    minHeight: "44px",
+    fontSize: "14px"
   }
 };
 

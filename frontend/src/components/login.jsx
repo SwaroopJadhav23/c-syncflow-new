@@ -15,14 +15,17 @@ const Login = () => {
       // Your API Call
       const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
       
-      // Save token and redirect
+      // Save token and user data to localStorage
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      
+      console.log('✅ Login successful! User data saved:', res.data.user);
       
       // Navigate to the dashboard home (not just /dashboard, to avoid blank outlet)
       navigate('/dashboard/home'); 
       
     } catch (err) {
-      console.error(err);
+      console.error('Login error:', err);
       alert(err.response?.data?.msg || 'Login Failed. Please check your credentials.');
     }
   };

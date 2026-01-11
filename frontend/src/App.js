@@ -19,33 +19,68 @@ import Meeting from './pages/meetings';
 // Import CSS
 import './App.css';
 
+// --- PROTECTED ROUTE COMPONENT ---
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+    return null;
+  }
+  return children;
+};
+
 // --- LAYOUT COMPONENT ---
 const DashboardLayout = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login'; 
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     // We removed style={{ display: 'flex' }} because .dashboard-container in App.css handles it
     <div className="dashboard-container">
       
+      {/* Mobile Menu Button */}
+      <button 
+        className="mobile-menu-btn" 
+        onClick={toggleMobileMenu}
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? '✕' : '☰'}
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`mobile-menu-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={closeMobileMenu}
+      />
+
       {/* SIDEBAR */}
       {/* Removed inline styles. The .sidebar class in App.css makes it Dark Blue & Fixed Width */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <h2 className="logo">SyncFlow</h2>
         </div>
         
         <nav className="sidebar-nav">
-          <Link to="/dashboard/home">🏠 Home</Link>
-          <Link to="/dashboard/profile">👤 Profile</Link>
-          <Link to="/dashboard/timesheet">📅 Timesheet</Link>
-          <Link to="/dashboard/notice">📢 Notice</Link>
-          <Link to="/dashboard/holiday">🎉 Holiday</Link>
-          <Link to="/dashboard/meeting">🤝 Meeting</Link>
-          <Link to="/dashboard/remarks">📝 Remarks</Link>
+          <Link to="/dashboard/home" onClick={closeMobileMenu}>🏠 Home</Link>
+          <Link to="/dashboard/profile" onClick={closeMobileMenu}>👤 Profile</Link>
+          <Link to="/dashboard/timesheet" onClick={closeMobileMenu}>📅 Timesheet</Link>
+          <Link to="/dashboard/notice" onClick={closeMobileMenu}>📢 Notice</Link>
+          <Link to="/dashboard/holiday" onClick={closeMobileMenu}>🎉 Holiday</Link>
+          <Link to="/dashboard/meeting" onClick={closeMobileMenu}>🤝 Meeting</Link>
+          <Link to="/dashboard/remarks" onClick={closeMobileMenu}>📝 Remarks</Link>
           
           <button onClick={handleLogout} className="logout-btn">
             🚪 Logout
@@ -90,7 +125,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Protected Dashboard Routes */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<DashboardHome />} />
           <Route path="profile" element={<Profile />} />

@@ -253,14 +253,379 @@ body {
   text-decoration: underline;
 }
 
-/* Mobile Fixes */
+/* =========================================
+   4. CARD COMPONENT (Used in Pages)
+   ========================================= */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+/* Responsive Table Container */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.table-responsive table {
+  min-width: 600px;
+  width: 100%;
+}
+
+/* Mobile-friendly table styles */
 @media (max-width: 768px) {
+  .table-responsive {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .table-responsive table {
+    font-size: 14px;
+  }
+  
+  .table-responsive th,
+  .table-responsive td {
+    padding: 10px 8px !important;
+    white-space: nowrap;
+  }
+  
+  /* Stack table on very small screens */
+  @media (max-width: 480px) {
+    .table-responsive table {
+      display: block;
+    }
+    
+    .table-responsive thead {
+      display: none;
+    }
+    
+    .table-responsive tbody,
+    .table-responsive tr,
+    .table-responsive td {
+      display: block;
+      width: 100%;
+    }
+    
+    .table-responsive tr {
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+    
+    .table-responsive td {
+      text-align: left !important;
+      padding: 8px 0 !important;
+      border: none;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .table-responsive td:before {
+      content: attr(data-label) ": ";
+      font-weight: bold;
+      display: inline-block;
+      width: 100px;
+      color: #666;
+    }
+    
+    .table-responsive td:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+/* =========================================
+   5. MOBILE RESPONSIVE STYLES
+   ========================================= */
+
+/* Tablet and below (768px) */
+@media (max-width: 768px) {
+  /* Auth Pages */
   .auth-card {
     flex-direction: column;
     height: auto;
+    min-height: auto;
+    width: 100%;
+    margin: 10px;
   }
+  
   .auth-visual {
-    padding: 30px;
+    padding: 30px 20px;
     min-height: 200px;
+  }
+  
+  .visual-content h1 {
+    font-size: 2rem;
+  }
+  
+  .visual-content p {
+    font-size: 1rem;
+  }
+  
+  .auth-form-section {
+    padding: 30px 20px;
+  }
+  
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  /* Dashboard Layout */
+  .dashboard-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    top: 0;
+    left: -100%;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+  
+  .sidebar.mobile-open {
+    left: 0;
+  }
+  
+  .content {
+    padding: 20px 15px;
+    width: 100%;
+    margin-top: 60px; /* Space for mobile menu button */
+  }
+  
+  .content-wrapper {
+    max-width: 100%;
+  }
+  
+  /* Mobile Menu Button */
+  .mobile-menu-btn {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  
+  .mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
+  
+  .mobile-menu-overlay.active {
+    display: block;
+  }
+  
+  .sidebar-header {
+    padding: 20px;
+  }
+  
+  .sidebar-header .logo {
+    font-size: 1.5rem;
+  }
+  
+  .sidebar-nav {
+    padding: 15px 10px;
+  }
+  
+  .sidebar-nav a {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+  
+  .logout-btn {
+    margin: 20px;
+  }
+  
+  /* Cards */
+  .card {
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Additional mobile optimizations for dashboard grid */
+@media (max-width: 600px) {
+  /* Force single column for dashboard cards */
+  [style*="repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Mobile phones (480px and below) */
+@media (max-width: 480px) {
+  /* Auth Pages */
+  .auth-container {
+    padding: 10px;
+  }
+  
+  .auth-card {
+    border-radius: 15px;
+    margin: 0;
+  }
+  
+  .auth-visual {
+    padding: 25px 15px;
+    min-height: 150px;
+  }
+  
+  .visual-content h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+  }
+  
+  .visual-content p {
+    font-size: 0.9rem;
+  }
+  
+  .auth-form-section {
+    padding: 25px 15px;
+  }
+  
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .form-header p {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group input,
+  .input-group select {
+    padding: 14px 15px 14px 45px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .auth-btn {
+    padding: 16px;
+    font-size: 16px;
+  }
+  
+  /* Dashboard */
+  .content {
+    padding: 15px 10px;
+  }
+  
+  .mobile-menu-btn {
+    top: 10px;
+    left: 10px;
+    padding: 10px;
+    font-size: 18px;
+  }
+  
+  .card {
+    padding: 15px;
+    border-radius: 10px;
+  }
+  
+  /* Typography */
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Buttons - Better touch targets */
+  button {
+    min-height: 44px; /* Better touch target */
+    padding: 12px 20px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Forms */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    min-height: 44px;
+    padding: 12px 15px;
+  }
+  
+  /* Grid improvements - Force single column on mobile */
+  [style*="gridTemplateColumns"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+  
+  /* Dashboard grid specifically */
+  .dashboard-home-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Card padding */
+  .card {
+    padding: 15px !important;
+  }
+  
+  /* Spacing */
+  .content-wrapper > div {
+    margin-bottom: 20px;
+  }
+}
+
+/* Large screens - hide mobile menu button */
+@media (min-width: 769px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+  
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+  
+  .sidebar {
+    position: relative;
+    left: 0 !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .mobile-menu-btn,
+  .logout-btn {
+    display: none;
+  }
+  
+  .content {
+    margin: 0;
+    padding: 0;
   }
 }

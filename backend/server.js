@@ -13,7 +13,10 @@ const app = express();
 // 1. Enable CORS so your frontend can talk to your backend
 app.use(cors());
 
-// 2. Enable JSON parsing (REQUIRED to read data from your website)
+// 2. Trust proxy to get real IP addresses
+app.set('trust proxy', true);
+
+// 3. Enable JSON parsing (REQUIRED to read data from your website)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

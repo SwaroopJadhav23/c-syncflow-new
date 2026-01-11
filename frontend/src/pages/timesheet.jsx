@@ -114,6 +114,7 @@ const Timesheet = () => {
       <div className="card" style={{ marginBottom: '30px', padding: '0' }}>
         <h3 style={{ padding: '20px 20px 10px 20px', margin: 0, textAlign: 'left' }}>📋 Task List</h3>
         
+        <div className="table-responsive">
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead style={{ background: "#f8f9fa" }}>
             <tr style={{ textAlign: "left" }}>
@@ -129,15 +130,15 @@ const Timesheet = () => {
             {tasks.length > 0 ? (
               tasks.map((task) => (
                 <tr key={task.id} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={styles.td}>{task.project}</td>
-                  <td style={styles.td}>
+                  <td style={styles.td} data-label="Project">{task.project}</td>
+                  <td style={styles.td} data-label="Task">
                     <strong>{task.title}</strong><br/>
                     <small style={{color:'gray'}}>{task.description}</small>
                   </td>
-                  <td style={styles.td}>{task.allottedBy}</td>
-                  <td style={styles.td}><span style={{color: 'red'}}>{task.deadline}</span></td>
-                  <td style={styles.td}>{task.timeRequired}</td>
-                  <td style={styles.td}>
+                  <td style={styles.td} data-label="Allotted By">{task.allottedBy}</td>
+                  <td style={styles.td} data-label="Deadline"><span style={{color: 'red'}}>{task.deadline}</span></td>
+                  <td style={styles.td} data-label="Time">{task.timeRequired}</td>
+                  <td style={styles.td} data-label="Action">
                     <button 
                       onClick={() => handleDelete(task.id)} 
                       style={styles.deleteBtn}
@@ -156,6 +157,7 @@ const Timesheet = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* SECTION 3: WHITEBOARD */}
@@ -168,7 +170,7 @@ const Timesheet = () => {
 const styles = {
   gridContainer: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
     gap: '20px',
   },
   formGroup: {
