@@ -10,6 +10,12 @@ const TaskSchema = new mongoose.Schema({
     type: String,
     trim: true 
   },
+  // Priority level for the task
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'medium'
+  },
   status: { 
     type: String, 
     enum: ["To Do", "In Progress", "Completed"], // Limits options to these three

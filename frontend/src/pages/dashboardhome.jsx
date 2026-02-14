@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import RemarksBoard from '../components/remarksboard';
 
 const DashboardHome = () => {
@@ -17,6 +18,25 @@ const DashboardHome = () => {
       });
     }
   }, []);
+  
+  // Issue reporting UI state
+  const [showIssueForm, setShowIssueForm] = useState(false);
+  const [issueForm, setIssueForm] = useState({ title: '', description: '', priority: 'medium' });
+
+  const handleIssueSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) return alert('Please login first');
+    try {
+      const res = await axios.post('http://localhost:5000/api/issues/report', issueForm, { headers: { Authorization: `Bearer ${token}` } });
+      alert('Issue reported to admin');
+      setIssueForm({ title: '', description: '', priority: 'medium' });
+      setShowIssueForm(false);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.msg || 'Failed to report issue');
+    }
+  };
   // --- UPDATED LOGIC END ---
 
 
@@ -32,13 +52,33 @@ const DashboardHome = () => {
   return (
     <div>
       {/* --- HEADER --- */}
-      <div style={{ marginBottom: "30px" }}>
-        {/* DISPLAY THE DYNAMIC NAME HERE */}
-        <h2 style={{ color: "#1e293b", fontSize: "clamp(1.5rem, 4vw, 28px)" }}>
-          🏠 Welcome Back, {userInfo.username}!
-        </h2>
-        <p style={{ color: "#64748b", marginTop: "5px", fontSize: "clamp(0.9rem, 2vw, 1rem)" }}>Here is what's happening today at SyncFlow.</p>
+      <div style={{ marginBottom: "30px", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ color: "#1e293b", fontSize: "28px" }}>
+            🏠 Welcome Back, {userInfo.username}!
+          </h2>
+          <p style={{ color: "#64748b", marginTop: "5px" }}>Here is what's happening today at SyncFlow.</p>
+        </div>
+        <div>
+          <button onClick={() => setShowIssueForm(s => !s)}>Report Issue</button>
+        </div>
       </div>
+
+      {showIssueForm && (
+        <div style={{ marginBottom: '20px', background: '#fff', padding: '12px', borderRadius: '8px' }}>
+          <h3>Report an Issue</h3>
+          <form onSubmit={handleIssueSubmit} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input required placeholder="Title" value={issueForm.title} onChange={e => setIssueForm({ ...issueForm, title: e.target.value })} />
+            <input placeholder="Description" value={issueForm.description} onChange={e => setIssueForm({ ...issueForm, description: e.target.value })} />
+            <select value={issueForm.priority} onChange={e => setIssueForm({ ...issueForm, priority: e.target.value })}>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      )}
 
       {/* --- DASHBOARD BLOCKS GRID --- */}
       <div style={styles.gridContainer}>
@@ -70,15 +110,7 @@ const DashboardHome = () => {
             <div style={styles.icon}>🤝</div>
             <h3 style={styles.cardTitle}>Meetings</h3>
             <p style={styles.text}>Next: {summaryData.nextMeeting}</p>
-            <button 
-              style={styles.smallBtn}
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.href = '/dashboard/meeting';
-              }}
-            >
-              Join Now
-            </button>
+            <button style={styles.smallBtn}>Join Now</button>
           </div>
         </Link>
 
@@ -135,10 +167,6 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center"
   },
-  cardHover: {
-    transform: "translateY(-5px)",
-    boxShadow: "0 8px 15px rgba(0,0,0,0.1)"
-  },
   cardTitle: {
     margin: "10px 0",
     fontSize: "18px",
@@ -168,14 +196,12 @@ const styles = {
     background: "#9b59b6",
     color: "white",
     border: "none",
-    padding: "10px 16px",
+    padding: "8px 16px",
     borderRadius: "6px",
-    fontSize: "14px",
+    fontSize: "12px",
     marginTop: "10px",
     cursor: "pointer",
-    fontWeight: "bold",
-    minHeight: "44px",
-    width: "100%"
+    fontWeight: "bold"
   },
   whiteboardContainer: {
     backgroundColor: "#ffffff",

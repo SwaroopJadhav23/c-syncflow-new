@@ -168,7 +168,7 @@ const Holiday = () => {
 const styles = {
   gridContainer: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    gridTemplateColumns: "1fr 1fr",
     gap: "20px",
   },
   formGroup: {

@@ -230,8 +230,7 @@ const styles = {
     padding: "10px",
     borderRadius: "6px",
     minWidth: "200px",
-    fontSize: "13px",
-    flex: "1 1 200px"
+    fontSize: "13px"
   },
   credRow: {
     display: "flex",
@@ -244,9 +243,7 @@ const styles = {
   actionButtons: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
-    flex: "0 0 auto",
-    minWidth: "120px"
+    gap: "8px"
   },
   joinBtnLink: {
     display: "flex",
@@ -254,6 +251,7 @@ const styles = {
     alignItems: "center",
     background: "#27ae60", 
     color: "white", 
+<<<<<<< HEAD
     textDecoration: "none",
     padding: "10px 15px", 
     borderRadius: "5px", 
@@ -278,6 +276,22 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: "14px"
+=======
+    border: "none", 
+    padding: "8px 15px", 
+    borderRadius: "5px", 
+    cursor: "pointer",
+    fontWeight: "bold"
+  },
+  cancelBtn: {
+    background: "#e74c3c", 
+    color: "white", 
+    border: "none", 
+    padding: "8px 15px", 
+    borderRadius: "5px", 
+    cursor: "pointer",
+    fontWeight: "bold"
+>>>>>>> 63c93ca (feat(admin): add admin panel, projects, issues, E2E scripts and cleanup; frontend admin UI and delete controls)
   }
 };
 
