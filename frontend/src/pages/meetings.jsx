@@ -249,12 +249,11 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#27ae60", 
-    color: "white", 
-<<<<<<< HEAD
+    background: "#27ae60",
+    color: "white",
     textDecoration: "none",
-    padding: "10px 15px", 
-    borderRadius: "5px", 
+    padding: "10px 15px",
+    borderRadius: "5px",
     fontWeight: "bold",
     fontSize: "14px",
     textAlign: "center"
@@ -268,30 +267,13 @@ const styles = {
     cursor: "not-allowed"
   },
   cancelBtn: {
-    background: "transparent", 
-    color: "#e74c3c", 
-    border: "1px solid #e74c3c", 
-    padding: "8px 15px", 
-    borderRadius: "5px", 
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: "14px"
-=======
-    border: "none", 
-    padding: "8px 15px", 
-    borderRadius: "5px", 
+    background: "#e74c3c",
+    color: "white",
+    border: "none",
+    padding: "8px 15px",
+    borderRadius: "5px",
     cursor: "pointer",
     fontWeight: "bold"
-  },
-  cancelBtn: {
-    background: "#e74c3c", 
-    color: "white", 
-    border: "none", 
-    padding: "8px 15px", 
-    borderRadius: "5px", 
-    cursor: "pointer",
-    fontWeight: "bold"
->>>>>>> 63c93ca (feat(admin): add admin panel, projects, issues, E2E scripts and cleanup; frontend admin UI and delete controls)
   }
 };
 
