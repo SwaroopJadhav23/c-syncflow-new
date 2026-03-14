@@ -7,9 +7,13 @@ const cors = require('cors');
 // We use all-lowercase to match your filenames exactly
 const authRoutes = require('./routes/authroutes');
 const taskRoutes = require('./routes/taskroutes');
-const syncRoutes = require('./routes/syncroutes'); 
+const syncRoutes = require('./routes/syncroutes');
 const adminRoutes = require('./routes/adminroutes');
 const issueRoutes = require('./routes/issueroutes');
+const noticeRoutes = require('./routes/noticeroutes');
+const leaveRoutes = require('./routes/leaveroutes');
+const holidayRoutes = require('./routes/holidayroutes');
+const dashboardRoutes = require('./routes/dashboardroutes');
 
 const app = express();
 
@@ -28,9 +32,13 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
-app.use('/api/sync', syncRoutes); 
+app.use('/api/sync', syncRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/issues', issueRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/leaves', leaveRoutes);
+app.use('/api/holidays', holidayRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // --- DATABASE CONNECTION ---
 if (process.env.NODE_ENV !== 'test') {

@@ -29,6 +29,14 @@ const TaskSchema = new mongoose.Schema({
   deadline: { 
     type: Date 
   },
+  timeRequired: { type: String, trim: true },
+  projectName: { type: String, trim: true },
+  allottedBy: { type: String, trim: true },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    default: null
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

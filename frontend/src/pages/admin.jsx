@@ -7,8 +7,12 @@ const Admin = () => {
   const [issues, setIssues] = useState([]);
   const [projectForm, setProjectForm] = useState({ name: '', description: '' });
   const [tasks, setTasks] = useState([]);
+  const [leaves, setLeaves] = useState([]);
+  const [noticeForm, setNoticeForm] = useState({ title: '', content: '' });
+  const [holidayForm, setHolidayForm] = useState({ name: '', date: '' });
 
   const token = localStorage.getItem('token');
+  const API = 'http://localhost:5000/api';
 
   useEffect(() => {
     if (!token) return;
@@ -16,7 +20,17 @@ const Admin = () => {
     fetchProjects();
     fetchIssues();
     fetchTasks();
+    fetchLeaves();
   }, []);
+
+  const fetchLeaves = async () => {
+    try {
+      const res = await axios.get(`${API}/leaves/all`, { headers: { Authorization: `Bearer ${token}` } });
+      setLeaves(res.data);
+    } catch (err) {
+      setLeaves([]);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -47,8 +61,9 @@ const Admin = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/tasks/create', taskForm, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/admin/tasks/create`, taskForm, { headers: { Authorization: `Bearer ${token}` } });
       setTaskForm({ title: '', description: '', assignedTo: '', deadline: '', priority: 'medium', projectId: '' });
+      fetchTasks();
       alert('Task created');
     } catch (err) {
       console.error(err);
@@ -139,12 +154,43 @@ const Admin = () => {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/projects', projectForm, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/admin/projects`, projectForm, { headers: { Authorization: `Bearer ${token}` } });
       setProjectForm({ name: '', description: '' });
       fetchProjects();
     } catch (err) {
       console.error(err);
       alert('Project creation failed');
+    }
+  };
+
+  const handleCreateNotice = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/notices`, noticeForm, { headers: { Authorization: `Bearer ${token}` } });
+      setNoticeForm({ title: '', content: '' });
+      alert('Notice created');
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Failed');
+    }
+  };
+
+  const handleCreateHoliday = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/holidays`, holidayForm, { headers: { Authorization: `Bearer ${token}` } });
+      setHolidayForm({ name: '', date: '' });
+      alert('Holiday created');
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Failed');
+    }
+  };
+
+  const handleLeaveStatus = async (leaveId, status) => {
+    try {
+      await axios.put(`${API}/leaves/${leaveId}`, { status }, { headers: { Authorization: `Bearer ${token}` } });
+      fetchLeaves();
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Failed');
     }
   };
 
@@ -239,6 +285,40 @@ const Admin = () => {
             {i.title} — {i.priority} — {i.status} — reported by {i.reportedBy?.username}
             <button onClick={() => handleDeleteIssue(i._id)} style={{ marginLeft: 8, background: '#e74c3c', color: '#fff' }}>Delete Issue</button>
           </li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h3>Create Notice</h3>
+        <form onSubmit={handleCreateNotice} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input required placeholder="Title" value={noticeForm.title} onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })} />
+          <input placeholder="Content" value={noticeForm.content} onChange={e => setNoticeForm({ ...noticeForm, content: e.target.value })} />
+          <button type="submit">Create Notice</button>
+        </form>
+      </section>
+
+      <section>
+        <h3>Create Holiday</h3>
+        <form onSubmit={handleCreateHoliday} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input required placeholder="Name" value={holidayForm.name} onChange={e => setHolidayForm({ ...holidayForm, name: e.target.value })} />
+          <input type="date" required value={holidayForm.date} onChange={e => setHolidayForm({ ...holidayForm, date: e.target.value })} />
+          <button type="submit">Create Holiday</button>
+        </form>
+      </section>
+
+      <section>
+        <h3>Leave Requests</h3>
+        <ul>
+          {leaves.map(l => <li key={l._id}>
+            {l.user?.username} — {l.type} — {new Date(l.startDate).toLocaleDateString()} to {new Date(l.endDate).toLocaleDateString()} — <strong>{l.status}</strong>
+            {l.status === 'pending' && (
+              <>
+                <button onClick={() => handleLeaveStatus(l._id, 'approved')} style={{ marginLeft: 8, background: '#27ae60', color: '#fff' }}>Approve</button>
+                <button onClick={() => handleLeaveStatus(l._id, 'rejected')} style={{ marginLeft: 4, background: '#e74c3c', color: '#fff' }}>Reject</button>
+              </>
+            )}
+          </li>)}
+          {leaves.length === 0 && <li style={{ color: 'gray' }}>No leave requests</li>}
         </ul>
       </section>
     </div>

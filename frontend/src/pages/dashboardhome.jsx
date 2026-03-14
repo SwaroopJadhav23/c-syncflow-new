@@ -37,17 +37,30 @@ const DashboardHome = () => {
       alert(err.response?.data?.msg || 'Failed to report issue');
     }
   };
-  // --- UPDATED LOGIC END ---
-
-
-  // Static Data (Mock)
-  const summaryData = {
-    activeTasks: 5,
-    pendingDeadline: "Today",
-    nextMeeting: "10:00 AM - Standup",
-    nextHoliday: "25 Dec - Christmas",
-    unreadNotices: 2
-  };
+  // Dashboard summary from backend
+  const [summaryData, setSummaryData] = useState({
+    activeTasks: 0,
+    pendingDeadline: "—",
+    nextMeeting: "—",
+    nextHoliday: "—",
+    unreadNotices: 0,
+    pendingLeaves: 0
+  });
+  useEffect(() => {
+    const t = localStorage.getItem('token');
+    if (t) {
+      axios.get('http://localhost:5000/api/dashboard/summary', { headers: { Authorization: `Bearer ${t}` } })
+        .then((res) => setSummaryData({
+          activeTasks: res.data.activeTasks ?? 0,
+          pendingDeadline: res.data.pendingDeadline ?? "—",
+          nextMeeting: res.data.nextMeeting ?? "—",
+          nextHoliday: res.data.nextHoliday ?? "—",
+          unreadNotices: res.data.unreadNotices ?? 0,
+          pendingLeaves: res.data.pendingLeaves ?? 0
+        }))
+        .catch(() => {});
+    }
+  }, []);
 
   return (
     <div>
@@ -120,7 +133,7 @@ const DashboardHome = () => {
             <div style={styles.icon}>🎉</div>
             <h3 style={styles.cardTitle}>Holidays</h3>
             <p style={styles.text}>Upcoming: {summaryData.nextHoliday}</p>
-            <p style={{ fontSize: "13px", color: "#94a3b8" }}>No leave requests pending.</p>
+            <p style={{ fontSize: "13px", color: "#94a3b8" }}>{summaryData.pendingLeaves ? `${summaryData.pendingLeaves} leave request(s) pending.` : 'No leave requests pending.'}</p>
           </div>
         </Link>
 

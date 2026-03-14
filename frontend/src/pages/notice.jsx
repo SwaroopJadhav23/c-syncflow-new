@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import RemarksBoard from '../components/remarksboard';
 
+const API = 'http://localhost:5000/api/notices';
+
 const Notice = () => {
-  // State for active tab (Optional UI enhancement, but we will show all blocks for clarity)
-  // Data for the sections
-  const notices = [
-    { id: 1, title: "⚠️ System Maintenance", date: "Dec 20, 2025", content: "The SyncFlow server will be down for maintenance from 2:00 AM to 4:00 AM." },
-    { id: 2, title: "🎄 Annual Christmas Party", date: "Dec 24, 2025", content: "Join us at the main hall at 5:00 PM for gifts and dinner!" }
-  ];
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(API).then((res) => setNotices(res.data)).catch(() => setNotices([])).finally(() => setLoading(false));
+  }, []);
 
   const companyPolicies = [
     { title: "Remote Work Policy", content: "Employees are allowed 2 days of remote work per week with manager approval." },
@@ -31,16 +34,16 @@ const Notice = () => {
       <h2>📢 Information Center</h2>
       <p style={{ color: "gray", marginBottom: "20px" }}>Official updates, policies, and frequently asked questions.</p>
 
-      {/* 1. OFFICIAL NOTICES SECTION */}
+      {/* 1. OFFICIAL NOTICES SECTION (from backend) */}
       <h3 style={styles.sectionHeader}>📌 Official Notices</h3>
       <div style={styles.gridContainer}>
-        {notices.map((notice) => (
-          <div key={notice.id} className="card" style={styles.noticeCard}>
+        {loading ? <p>Loading notices...</p> : notices.length === 0 ? <p style={{ color: 'gray' }}>No notices yet.</p> : notices.map((notice) => (
+          <div key={notice._id} className="card" style={styles.noticeCard}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <h4 style={{ margin: "0 0 10px 0", color: "#c0392b" }}>{notice.title}</h4>
-              <small style={{ color: "gray" }}>{notice.date}</small>
+              <small style={{ color: "gray" }}>{notice.date ? new Date(notice.date).toLocaleDateString() : ''}</small>
             </div>
-            <p style={{ fontSize: "14px", margin: 0 }}>{notice.content}</p>
+            <p style={{ fontSize: "14px", margin: 0 }}>{notice.content || ''}</p>
           </div>
         ))}
       </div>

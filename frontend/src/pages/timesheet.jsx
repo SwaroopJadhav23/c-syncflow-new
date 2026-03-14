@@ -1,59 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import RemarksBoard from '../components/remarksboard';
 
+const API = 'http://localhost:5000/api/tasks';
+const token = () => localStorage.getItem('token');
+
 const Timesheet = () => {
-  // 1. STATE: Form Data (For adding new tasks)
   const [taskForm, setTaskForm] = useState({
-    title: "",        // This maps to "To Do"
+    title: "",
     project: "",
     allottedBy: "",
     timeRequired: "",
     description: "",
-    deadline: ""      // Date input by user
+    deadline: ""
   });
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  // 2. STATE: List of Tasks (The Planner)
-  // Initial dummy data to show how it looks
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Design Home Page",
-      project: "Website Redesign",
-      allottedBy: "Manager John",
-      timeRequired: "4 Hours",
-      deadline: "2023-12-25",
-      description: "Create Figma mockup"
-    }
-  ]);
+  const fetchTasks = () => {
+    if (!token()) { setLoading(false); return; }
+    axios.get(`${API}/my`, { headers: { Authorization: `Bearer ${token()}` } })
+      .then((res) => setTasks(res.data))
+      .catch(() => setTasks([]))
+      .finally(() => setLoading(false));
+  };
 
-  // Handle Input Change
+  useEffect(() => { fetchTasks(); }, []);
+
   const handleChange = (e) => {
     setTaskForm({ ...taskForm, [e.target.name]: e.target.value });
   };
 
-  // Handle Add Task
-  const handleAddTask = (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
-    if (!taskForm.title || !taskForm.project) {
-      alert("Please fill in at least Title and Project!");
+    if (!taskForm.title.trim()) {
+      alert("Please fill in at least Title!");
       return;
     }
-
-    const newTask = {
-      id: Date.now(), // Generate unique ID based on timestamp
-      ...taskForm
-    };
-
-    setTasks([...tasks, newTask]); // Add to list
-    // Reset form
-    setTaskForm({ title: "", project: "", allottedBy: "", timeRequired: "", description: "", deadline: "" });
+    if (!token()) { alert("Please login to add tasks."); return; }
+    setSubmitting(true);
+    try {
+      await axios.post(`${API}/my`, {
+        title: taskForm.title,
+        projectName: taskForm.project,
+        allottedBy: taskForm.allottedBy,
+        timeRequired: taskForm.timeRequired,
+        description: taskForm.description,
+        deadline: taskForm.deadline || undefined
+      }, { headers: { Authorization: `Bearer ${token()}` } });
+      setTaskForm({ title: "", project: "", allottedBy: "", timeRequired: "", description: "", deadline: "" });
+      fetchTasks();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Failed to add task");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // Handle Delete Task
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this task?");
-    if (confirmDelete) {
-      setTasks(tasks.filter((task) => task.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this task?")) return;
+    if (!token()) return;
+    try {
+      await axios.delete(`${API}/${id}`, { headers: { Authorization: `Bearer ${token()}` } });
+      fetchTasks();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Failed to delete");
     }
   };
 
@@ -105,7 +117,7 @@ const Timesheet = () => {
           </div>
 
           <div style={{ textAlign: 'right', marginTop: '15px' }}>
-            <button type="submit" style={styles.addBtn}>Add Task to Planner</button>
+            <button type="submit" style={styles.addBtn} disabled={submitting}>{submitting ? 'Adding...' : 'Add Task to Planner'}</button>
           </div>
         </form>
       </div>
@@ -126,31 +138,28 @@ const Timesheet = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.length > 0 ? (
+            {loading ? (
+              <tr><td colSpan="6" style={{ padding: "20px", textAlign: "center" }}>Loading...</td></tr>
+            ) : tasks.length > 0 ? (
               tasks.map((task) => (
-                <tr key={task.id} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={styles.td}>{task.project}</td>
+                <tr key={task._id} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={styles.td}>{task.projectName || '—'}</td>
                   <td style={styles.td}>
                     <strong>{task.title}</strong><br/>
                     <small style={{color:'gray'}}>{task.description}</small>
                   </td>
-                  <td style={styles.td}>{task.allottedBy}</td>
-                  <td style={styles.td}><span style={{color: 'red'}}>{task.deadline}</span></td>
-                  <td style={styles.td}>{task.timeRequired}</td>
+                  <td style={styles.td}>{task.allottedBy || '—'}</td>
+                  <td style={styles.td}><span style={{color: 'red'}}>{task.deadline ? new Date(task.deadline).toLocaleDateString() : '—'}</span></td>
+                  <td style={styles.td}>{task.timeRequired || '—'}</td>
                   <td style={styles.td}>
-                    <button 
-                      onClick={() => handleDelete(task.id)} 
-                      style={styles.deleteBtn}
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => handleDelete(task._id)} style={styles.deleteBtn}>Delete</button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "gray" }}>
-                  No tasks added yet. Add one above!
+                  No tasks yet. Add one above (login required).
                 </td>
               </tr>
             )}

@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import RemarksBoard from '../components/remarksboard';
 
+const API = 'http://localhost:5000/api';
+const token = () => localStorage.getItem('token');
+
 const Holiday = () => {
-  // 1. STATE: Leave Request Form
-  const [leaveForm, setLeaveForm] = useState({
-    type: "Sick Leave", // Default selection
-    startDate: "",
-    endDate: "",
-    reason: ""
-  });
+  const [leaveForm, setLeaveForm] = useState({ type: "Sick Leave", startDate: "", endDate: "", reason: "" });
+  const [holidays, setHolidays] = useState([]);
+  const [myLeaves, setMyLeaves] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    axios.get(`${API}/holidays`).then((res) => setHolidays(res.data)).catch(() => setHolidays([]));
+    if (token()) {
+      axios.get(`${API}/leaves/my`, { headers: { Authorization: `Bearer ${token()}` } }).then((res) => setMyLeaves(res.data)).catch(() => setMyLeaves([]));
+    }
+  }, []);
 
   const handleLeaveChange = (e) => {
     setLeaveForm({ ...leaveForm, [e.target.name]: e.target.value });
   };
 
-  const handleLeaveSubmit = (e) => {
+  const handleLeaveSubmit = async (e) => {
     e.preventDefault();
-    alert(`Leave Request Sent!\nType: ${leaveForm.type}\nFrom: ${leaveForm.startDate} To: ${leaveForm.endDate}`);
-    // Reset form after submission
-    setLeaveForm({ type: "Sick Leave", startDate: "", endDate: "", reason: "" });
+    if (!token()) { alert('Please login to submit leave.'); return; }
+    setLoading(true);
+    try {
+      await axios.post(`${API}/leaves`, leaveForm, { headers: { Authorization: `Bearer ${token()}` } });
+      alert('Leave request submitted.');
+      setLeaveForm({ type: "Sick Leave", startDate: "", endDate: "", reason: "" });
+      const res = await axios.get(`${API}/leaves/my`, { headers: { Authorization: `Bearer ${token()}` } });
+      setMyLeaves(res.data);
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Failed to submit leave');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,65 +112,64 @@ const Holiday = () => {
           </div>
 
           <div style={{ textAlign: "right", marginTop: "15px" }}>
-            <button type="submit" style={styles.submitBtn}>Submit Request</button>
+            <button type="submit" style={styles.submitBtn} disabled={loading}>{loading ? 'Submitting...' : 'Submit Request'}</button>
           </div>
         </form>
       </div>
 
-      {/* SECTION 2: UPCOMING HOLIDAYS */}
+      {/* My Leave Requests (from backend) */}
+      {myLeaves.length > 0 && (
+        <div className="card" style={{ marginBottom: '20px' }}>
+          <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '10px' }}>📋 My Leave Requests</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr><th style={styles.tdDate}>Type</th><th style={styles.tdDay}>From</th><th style={styles.tdDay}>To</th><th style={styles.tdName}>Status</th></tr></thead>
+            <tbody>
+              {myLeaves.map((l) => (
+                <tr key={l._id}>
+                  <td style={styles.tdDate}>{l.type}</td>
+                  <td style={styles.tdDay}>{new Date(l.startDate).toLocaleDateString()}</td>
+                  <td style={styles.tdDay}>{new Date(l.endDate).toLocaleDateString()}</td>
+                  <td style={styles.tdName}>{l.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* SECTION 2 & 3: Holidays from backend */}
       <div style={styles.flexRow}>
         <div className="card" style={{ flex: 1, padding: "0" }}>
           <div style={{ padding: "15px", background: "#2ecc71", color: "white", borderRadius: "8px 8px 0 0" }}>
             <h3 style={{ margin: 0 }}>📅 Upcoming Holidays</h3>
           </div>
-          
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <tbody>
-              {/* Upcoming Date 1 */}
-              <tr>
-                <td style={styles.tdDate}>25 Dec 2025</td>
-                <td style={styles.tdDay}>Thursday</td>
-                <td style={styles.tdName}>Christmas Day</td>
-              </tr>
-              {/* Upcoming Date 2 */}
-              <tr>
-                <td style={styles.tdDate}>01 Jan 2026</td>
-                <td style={styles.tdDay}>Thursday</td>
-                <td style={styles.tdName}>New Year's Day</td>
-              </tr>
-              {/* Upcoming Date 3 */}
-              <tr>
-                <td style={styles.tdDate}>26 Jan 2026</td>
-                <td style={styles.tdDay}>Monday</td>
-                <td style={styles.tdName}>Republic Day</td>
-              </tr>
+              {holidays.filter((h) => new Date(h.date) >= new Date()).map((h) => (
+                <tr key={h._id}>
+                  <td style={styles.tdDate}>{new Date(h.date).toLocaleDateString()}</td>
+                  <td style={styles.tdDay}>{new Date(h.date).toLocaleDateString('en-US', { weekday: 'long' })}</td>
+                  <td style={styles.tdName}>{h.name}</td>
+                </tr>
+              ))}
+              {holidays.filter((h) => new Date(h.date) >= new Date()).length === 0 && <tr><td colSpan={3} style={{ padding: 12, color: 'gray' }}>No upcoming holidays in database.</td></tr>}
             </tbody>
           </table>
         </div>
-
-        {/* SECTION 3: PAST HOLIDAYS */}
         <div className="card" style={{ flex: 1, padding: "0", opacity: "0.8" }}>
           <div style={{ padding: "15px", background: "#95a5a6", color: "white", borderRadius: "8px 8px 0 0" }}>
-            <h3 style={{ margin: 0 }}>⏮️ Past Holidays (2025)</h3>
+            <h3 style={{ margin: 0 }}>⏮️ Past Holidays</h3>
           </div>
-          
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <tbody>
-              <tr>
-                <td style={styles.tdDate}>15 Aug 2025</td>
-                <td style={styles.tdDay}>Friday</td>
-                <td style={styles.tdName}>Independence Day</td>
-              </tr>
-              <tr>
-                <td style={styles.tdDate}>02 Oct 2025</td>
-                <td style={styles.tdDay}>Thursday</td>
-                <td style={styles.tdName}>Gandhi Jayanti</td>
-              </tr>
-              <tr>
-                <td style={styles.tdDate}>20 Oct 2025</td>
-                <td style={styles.tdDay}>Monday</td>
-                <td style={styles.tdName}>Diwali</td>
-              </tr>
+              {holidays.filter((h) => new Date(h.date) < new Date()).slice(-5).reverse().map((h) => (
+                <tr key={h._id}>
+                  <td style={styles.tdDate}>{new Date(h.date).toLocaleDateString()}</td>
+                  <td style={styles.tdDay}>{new Date(h.date).toLocaleDateString('en-US', { weekday: 'long' })}</td>
+                  <td style={styles.tdName}>{h.name}</td>
+                </tr>
+              ))}
+              {holidays.filter((h) => new Date(h.date) < new Date()).length === 0 && <tr><td colSpan={3} style={{ padding: 12, color: 'gray' }}>No past holidays.</td></tr>}
             </tbody>
           </table>
         </div>

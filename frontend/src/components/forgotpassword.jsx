@@ -17,7 +17,7 @@ const ForgotPassword = () => {
       alert('OTP sent! Check server console.');
       setStep(2);
     } catch (err) {
-      alert(err.response.data.msg);
+      alert(err.response?.data?.msg || 'Request failed');
     }
   };
 

@@ -35,7 +35,16 @@ const UserSchema = new mongoose.Schema({
   },
 
   otp: { type: String },
-  otpExpires: { type: Date }
+  otpExpires: { type: Date },
+  // Profile (optional)
+  phone: { type: String, trim: true },
+  qualification: { type: String, trim: true },
+  institute: { type: String, trim: true },
+  address: { type: String, trim: true },
+  trainingMode: { type: String, trim: true },
+  paymentAmount: { type: String, trim: true },
+  paymentMode: { type: String, trim: true },
+  transactionNo: { type: String, trim: true }
 }, {
   timestamps: true 
 });

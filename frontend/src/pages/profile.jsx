@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import RemarksBoard from '../components/remarksboard';
 
+const API = 'http://localhost:5000/api/auth';
+
 const Profile = () => {
-  // Initial State
   const [profileData, setProfileData] = useState({
-    name: "", 
+    name: "",
     email: "",
     phone: "",
     qualification: "",
@@ -17,18 +19,43 @@ const Profile = () => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // --- 1. LOAD DATA FROM LOCAL STORAGE ON STARTUP ---
+  // Load from backend; fallback to localStorage
   useEffect(() => {
-    // Get the user data saved during Login
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setProfileData((prevData) => ({
-        ...prevData,
-        name: parsedUser.username || "", // Load Name from Login
-        email: parsedUser.email || ""    // Load Email from Login
-      }));
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.get(`${API}/profile`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((res) => {
+          const u = res.data;
+          setProfileData({
+            name: u.username || "",
+            email: u.email || "",
+            phone: u.phone || "",
+            qualification: u.qualification || "",
+            institute: u.institute || "",
+            address: u.address || "",
+            trainingMode: u.trainingMode || "Full Time",
+            paymentAmount: u.paymentAmount || "",
+            paymentMode: u.paymentMode || "Bank Transfer",
+            transactionNo: u.transactionNo || ""
+          });
+        })
+        .catch(() => {
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            const parsed = JSON.parse(storedUser);
+            setProfileData((prev) => ({ ...prev, name: parsed.username || "", email: parsed.email || "" }));
+          }
+        })
+        .finally(() => setLoading(false));
+    } else {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setProfileData((prev) => ({ ...prev, name: parsed.username || "", email: parsed.email || "" }));
+      }
+      setLoading(false);
     }
   }, []);
 
@@ -38,25 +65,47 @@ const Profile = () => {
     setProfileData({ ...profileData, [name]: value });
   };
 
-  // --- 2. SAVE NEW NAME TO LOCAL STORAGE ---
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-
-    // A. Update LocalStorage so Dashboard sees the change
-    const storedUser = JSON.parse(localStorage.getItem('user')) || {};
-    const updatedUser = { 
-      ...storedUser, 
-      username: profileData.name, // UPDATE THE NAME
-      email: profileData.email    // UPDATE THE EMAIL
+    const token = localStorage.getItem('token');
+    const payload = {
+      username: profileData.name,
+      email: profileData.email,
+      phone: profileData.phone,
+      qualification: profileData.qualification,
+      institute: profileData.institute,
+      address: profileData.address,
+      trainingMode: profileData.trainingMode,
+      paymentAmount: profileData.paymentAmount,
+      paymentMode: profileData.paymentMode,
+      transactionNo: profileData.transactionNo
     };
-    
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-
-    // B. (Optional) Here you would also send axios.put() to update MongoDB
-
-    alert("Profile Details Saved Successfully!");
+    if (token) {
+      try {
+        const res = await axios.put(`${API}/profile`, payload, { headers: { Authorization: `Bearer ${token}` } });
+        const u = res.data;
+        localStorage.setItem('user', JSON.stringify({
+          id: u._id,
+          username: u.username,
+          email: u.email,
+          role: u.role
+        }));
+        alert("Profile saved to server.");
+      } catch (err) {
+        alert(err.response?.data?.msg || "Failed to save profile.");
+        return;
+      }
+    } else {
+      const stored = JSON.parse(localStorage.getItem('user')) || {};
+      stored.username = profileData.name;
+      stored.email = profileData.email;
+      localStorage.setItem('user', JSON.stringify(stored));
+      alert("Profile saved locally (not logged in).");
+    }
     setIsEditing(false);
   };
+
+  if (loading) return <div style={{ padding: 20 }}>Loading profile...</div>;
 
   return (
     <div>
