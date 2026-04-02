@@ -105,101 +105,104 @@ const Profile = () => {
     setIsEditing(false);
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading profile...</div>;
+  if (loading) return <div className="dashboard-page" style={{ padding: 20 }}>Loading profile...</div>;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{color: '#1e293b'}}>👤 User Profile</h2>
+    <div className="dashboard-page">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">👤 User Profile</h2>
+          <p className="page-subtitle">Manage your personal data & preferences</p>
+        </div>
         <button 
           onClick={() => setIsEditing(!isEditing)} 
-          style={isEditing ? styles.cancelBtn : styles.editBtn}
+          className={isEditing ? 'btn btn-danger' : 'btn btn-secondary'}
         >
           {isEditing ? "Cancel Edit" : "Edit Profile"}
         </button>
       </div>
 
       {/* Profile Form Card */}
-      <div style={styles.card}>
+      <div className="dashboard-card">
         <form onSubmit={handleSave}>
-          <div style={styles.gridContainer}>
+          <div className="grid-form">
             
             {/* Name */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Name:</label>
+            <div className="form-group">
+              <label className="form-label">Name:</label>
               <input 
                 type="text" 
                 name="name" 
                 value={profileData.name} 
                 onChange={handleChange} 
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Email */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Email:</label>
+            <div className="form-group">
+              <label className="form-label">Email:</label>
               <input 
                 type="email" 
                 name="email" 
                 value={profileData.email} 
                 onChange={handleChange} 
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing} 
               />
             </div>
 
             {/* Phone No */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Phone No:</label>
+            <div className="form-group">
+              <label className="form-label">Phone No:</label>
               <input 
                 type="tel" 
                 name="phone" 
                 value={profileData.phone} 
                 onChange={handleChange} 
                 placeholder="+91 98765 43210"
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Qualification */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Qualification:</label>
+            <div className="form-group">
+              <label className="form-label">Qualification:</label>
               <input 
                 type="text" 
                 name="qualification" 
                 value={profileData.qualification} 
                 onChange={handleChange} 
                 placeholder="e.g. B.Tech CSE"
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Institute Name */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Institute Name:</label>
+            <div className="form-group">
+              <label className="form-label">Institute Name:</label>
               <input 
                 type="text" 
                 name="institute" 
                 value={profileData.institute} 
                 onChange={handleChange} 
                 placeholder="University / College Name"
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Training Mode */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Training Mode:</label>
+            <div className="form-group">
+              <label className="form-label">Training Mode:</label>
               <select 
                 name="trainingMode" 
                 value={profileData.trainingMode} 
                 onChange={handleChange} 
-                style={styles.input}
+                className="form-select"
                 disabled={!isEditing}
               >
                 <option value="Full Time">Full Time</option>
@@ -211,27 +214,27 @@ const Profile = () => {
             </div>
 
             {/* Payment Amount */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Payment Amount (Rs):</label>
+            <div className="form-group">
+              <label className="form-label">Payment Amount (Rs):</label>
               <input 
                 type="number" 
                 name="paymentAmount" 
                 value={profileData.paymentAmount} 
                 onChange={handleChange} 
                 placeholder="e.g. 5000"
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Payment Mode */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Payment Mode:</label>
+            <div className="form-group">
+              <label className="form-label">Payment Mode:</label>
               <select 
                 name="paymentMode" 
                 value={profileData.paymentMode} 
                 onChange={handleChange} 
-                style={styles.input}
+                className="form-select"
                 disabled={!isEditing}
               >
                 <option value="Bank Transfer">Bank Transfer</option>
@@ -241,28 +244,29 @@ const Profile = () => {
             </div>
 
             {/* Transaction No */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Transaction No:</label>
+            <div className="form-group">
+              <label className="form-label">Transaction No:</label>
               <input 
                 type="text" 
                 name="transactionNo" 
                 value={profileData.transactionNo} 
                 onChange={handleChange} 
                 placeholder="UPI Ref / Cheque No"
-                style={styles.input}
+                className="form-input"
                 disabled={!isEditing}
               />
             </div>
 
             {/* Address (Full Width) */}
-            <div style={{ ...styles.formGroup, gridColumn: 'span 2' }}>
-              <label style={styles.label}>Address:</label>
+            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+              <label className="form-label">Address:</label>
               <textarea 
                 name="address" 
                 value={profileData.address} 
                 onChange={handleChange} 
                 placeholder="Full Residential Address"
-                style={{ ...styles.input, height: '60px', resize: 'none' }}
+                className="form-input"
+                style={{ height: '60px', resize: 'none' }}
                 disabled={!isEditing}
               />
             </div>
@@ -271,90 +275,20 @@ const Profile = () => {
 
           {/* Save Button */}
           {isEditing && (
-            <div style={{ textAlign: 'right', marginTop: '20px' }}>
-              <button type="submit" style={styles.saveBtn}>Save Details</button>
+            <div className="page-text-right" style={{ marginTop: '20px' }}>
+              <button type="submit" className="btn btn-primary">Save Details</button>
             </div>
           )}
         </form>
       </div>
 
       {/* Whiteboard Component at the bottom */}
-      <div style={styles.whiteboardContainer}>
+      <div className="whiteboard-container">
         <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>📝 Profile Remarks</h3>
         <RemarksBoard pageName="Profile Page" />
       </div>
     </div>
   );
-};
-
-// --- CSS Styles Object ---
-const styles = {
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    padding: "30px",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-    marginBottom: "30px",
-    textAlign: 'left'
-  },
-  gridContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', // Responsive cols
-    gap: '20px',
-  },
-  formGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  label: {
-    fontWeight: '600',
-    marginBottom: '8px',
-    color: '#34495e',
-    fontSize: '14px'
-  },
-  input: {
-    padding: '12px',
-    border: '1px solid #dfe6e9',
-    borderRadius: '8px',
-    fontSize: '14px',
-    backgroundColor: '#f8f9fa',
-    width: '100%',
-    transition: 'border 0.3s'
-  },
-  editBtn: {
-    padding: '10px 20px',
-    backgroundColor: '#3498db',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-  },
-  cancelBtn: {
-    padding: '10px 20px',
-    backgroundColor: '#95a5a6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-  },
-  saveBtn: {
-    padding: '12px 24px',
-    backgroundColor: '#27ae60',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    fontWeight: 'bold',
-  },
-  whiteboardContainer: {
-    backgroundColor: "#ffffff",
-    padding: "25px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
-  }
 };
 
 export default Profile;

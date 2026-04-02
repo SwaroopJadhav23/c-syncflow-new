@@ -11,17 +11,22 @@ const Admin = () => {
   const [noticeForm, setNoticeForm] = useState({ title: '', content: '' });
   const [holidayForm, setHolidayForm] = useState({ name: '', date: '' });
 
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminAuthorized, setAdminAuthorized] = useState(() => localStorage.getItem('adminAuthorized') === 'true');
+  const [authError, setAuthError] = useState('');
+
   const token = localStorage.getItem('token');
   const API = 'http://localhost:5000/api';
 
   useEffect(() => {
-    if (!token) return;
+    if (!adminAuthorized || !token) return;
     fetchUsers();
     fetchProjects();
     fetchIssues();
     fetchTasks();
     fetchLeaves();
-  }, []);
+  }, [adminAuthorized, token]);
 
   const fetchLeaves = async () => {
     try {
@@ -38,6 +43,20 @@ const Admin = () => {
       setUsers(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleAdminLogin = (event) => {
+    event.preventDefault();
+    const validEmail = 'pradnya@gmail.com';
+    const validPassword = 'Pradnya@123';
+
+    if (adminEmail.trim() === validEmail && adminPassword === validPassword) {
+      localStorage.setItem('adminAuthorized', 'true');
+      setAdminAuthorized(true);
+      setAuthError('');
+    } else {
+      setAuthError('Invalid admin credentials. Check email and password.');
     }
   };
   
@@ -194,17 +213,72 @@ const Admin = () => {
     }
   };
 
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminAuthorized');
+    setAdminAuthorized(false);
+    setAdminEmail('');
+    setAdminPassword('');
+    setAuthError('');
+  };
+
+  if (!adminAuthorized) {
+    return (
+      <div className="admin-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div className="card" style={{ maxWidth: '420px', width: '100%', padding: '25px', textAlign: 'center' }}>
+          <h2 style={{ marginBottom: '15px' }}>Admin Login</h2>
+          <form onSubmit={handleAdminLogin}>
+            <div className="form-group" style={{ marginBottom: '10px', textAlign: 'left' }}>
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="form-group" style={{ marginBottom: '15px', textAlign: 'left' }}>
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="form-input"
+                required
+              />
+            </div>
+            {authError && <p style={{ color: 'red', marginBottom: '12px' }}>{authError}</p>}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              Login as Admin
+            </button>
+          </form>
+          <p style={{ marginTop: '12px', color: '#6b7280' }}>
+            Use hard-coded credentials:
+            <br />
+            email: <strong>pradnya@gmail.com</strong>
+            <br />
+            password: <strong>Pradnya@123</strong>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="admin-page">
+      <div className="admin-header">
         <h2>Admin Panel</h2>
-        <div>
-          <button onClick={handleCleanupE2E} style={{ background: '#e74c3c', color: '#fff', padding: '6px 10px', border: 'none', borderRadius: '6px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={handleCleanupE2E} className="admin-btn-danger">
             Cleanup E2E Data
+          </button>
+          <button onClick={handleAdminLogout} className="btn btn-secondary">
+            Logout Admin
           </button>
         </div>
       </div>
-      <section>
+
+      <section className="admin-section">
         <h3>Users</h3>
         <ul>
           {users.map(u => <li key={u._id}>
@@ -217,9 +291,9 @@ const Admin = () => {
       <section>
         <h3>Create Project</h3>
         <form onSubmit={handleCreateProject}>
-          <input required placeholder="Name" value={projectForm.name} onChange={e => setProjectForm({ ...projectForm, name: e.target.value })} />
-          <input placeholder="Description" value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} />
-          <button type="submit">Create</button>
+          <input className="admin-input" required placeholder="Name" value={projectForm.name} onChange={e => setProjectForm({ ...projectForm, name: e.target.value })} />
+          <input className="admin-input" placeholder="Description" value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} />
+          <button className="admin-btn" type="submit">Create</button>
         </form>
         <h4>Projects</h4>
         <ul>
@@ -234,37 +308,37 @@ const Admin = () => {
         <div style={{ marginTop: '12px' }}>
           <h4>Assign Users to Project</h4>
           <form onSubmit={handleAssign}>
-            <select value={assignForm.projectId} onChange={e => setAssignForm({ ...assignForm, projectId: e.target.value })}>
+            <select className="admin-select" value={assignForm.projectId} onChange={e => setAssignForm({ ...assignForm, projectId: e.target.value })}>
               <option value="">Select Project</option>
               {projects.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
             </select>
-            <select multiple value={assignForm.userIds} onChange={e => setAssignForm({ ...assignForm, userIds: Array.from(e.target.selectedOptions).map(o => o.value) })}>
+            <select className="admin-select" multiple value={assignForm.userIds} onChange={e => setAssignForm({ ...assignForm, userIds: Array.from(e.target.selectedOptions).map(o => o.value) })}>
               {users.map(u => <option key={u._id} value={u._id}>{u.username} ({u.email})</option>)}
             </select>
-            <button type="submit">Assign</button>
+            <button className="admin-btn" type="submit">Assign</button>
           </form>
         </div>
 
         <div style={{ marginTop: '20px' }}>
           <h4>Create Task (with Priority)</h4>
           <form onSubmit={handleCreateTask}>
-            <input required placeholder="Title" value={taskForm.title} onChange={e => setTaskForm({ ...taskForm, title: e.target.value })} />
-            <input placeholder="Description" value={taskForm.description} onChange={e => setTaskForm({ ...taskForm, description: e.target.value })} />
-            <select value={taskForm.projectId} onChange={e => setTaskForm({ ...taskForm, projectId: e.target.value })}>
+            <input className="admin-input" required placeholder="Title" value={taskForm.title} onChange={e => setTaskForm({ ...taskForm, title: e.target.value })} />
+            <input className="admin-input" placeholder="Description" value={taskForm.description} onChange={e => setTaskForm({ ...taskForm, description: e.target.value })} />
+            <select className="admin-select" value={taskForm.projectId} onChange={e => setTaskForm({ ...taskForm, projectId: e.target.value })}>
               <option value="">Select Project (optional)</option>
               {projects.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
             </select>
-            <select value={taskForm.assignedTo} onChange={e => setTaskForm({ ...taskForm, assignedTo: e.target.value })}>
+            <select className="admin-select" value={taskForm.assignedTo} onChange={e => setTaskForm({ ...taskForm, assignedTo: e.target.value })}>
               <option value="">Assign to (optional)</option>
               {users.map(u => <option key={u._id} value={u._id}>{u.username}</option>)}
             </select>
-            <input type="date" value={taskForm.deadline} onChange={e => setTaskForm({ ...taskForm, deadline: e.target.value })} />
-            <select value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}>
+            <input className="admin-input" type="date" value={taskForm.deadline} onChange={e => setTaskForm({ ...taskForm, deadline: e.target.value })} />
+            <select className="admin-select" value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
-            <button type="submit">Create Task</button>
+            <button className="admin-btn" type="submit">Create Task</button>
           </form>
         </div>
         <div style={{ marginTop: '20px' }}>
@@ -288,21 +362,21 @@ const Admin = () => {
         </ul>
       </section>
 
-      <section>
+      <section className="admin-section">
         <h3>Create Notice</h3>
-        <form onSubmit={handleCreateNotice} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input required placeholder="Title" value={noticeForm.title} onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })} />
-          <input placeholder="Content" value={noticeForm.content} onChange={e => setNoticeForm({ ...noticeForm, content: e.target.value })} />
-          <button type="submit">Create Notice</button>
+        <form onSubmit={handleCreateNotice}>
+          <input className="admin-input" required placeholder="Title" value={noticeForm.title} onChange={e => setNoticeForm({ ...noticeForm, title: e.target.value })} />
+          <input className="admin-input" placeholder="Content" value={noticeForm.content} onChange={e => setNoticeForm({ ...noticeForm, content: e.target.value })} />
+          <button className="admin-btn" type="submit">Create Notice</button>
         </form>
       </section>
 
-      <section>
+      <section className="admin-section">
         <h3>Create Holiday</h3>
-        <form onSubmit={handleCreateHoliday} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input required placeholder="Name" value={holidayForm.name} onChange={e => setHolidayForm({ ...holidayForm, name: e.target.value })} />
-          <input type="date" required value={holidayForm.date} onChange={e => setHolidayForm({ ...holidayForm, date: e.target.value })} />
-          <button type="submit">Create Holiday</button>
+        <form onSubmit={handleCreateHoliday}>
+          <input className="admin-input" required placeholder="Name" value={holidayForm.name} onChange={e => setHolidayForm({ ...holidayForm, name: e.target.value })} />
+          <input className="admin-input" type="date" required value={holidayForm.date} onChange={e => setHolidayForm({ ...holidayForm, date: e.target.value })} />
+          <button className="admin-btn" type="submit">Create Holiday</button>
         </form>
       </section>
 
