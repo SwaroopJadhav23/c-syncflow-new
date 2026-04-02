@@ -1,24 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
 import RemarksBoard from '../components/remarksboard';
 
 const Meeting = () => {
   // 1. STATE
-  const [meetings, setMeetings] = useState([]); // Now empty, will be filled from DB
+  const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [syncVisible, setSyncVisible] = useState(false); // Toggle for Sync Form
-  const [syncData, setSyncData] = useState({ email: '', appPassword: '' });
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [formData, setFormData] = useState({
+    topic: '',
+    meetingLink: '',
+    meetingTime: ''
+  });
+  const [user, setUser] = useState(null);
+  const [socket, setSocket] = useState(null);
 
-  // 2. FETCH: Get live meetings from your backend
+  // 2. SOCKET SETUP
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      
+      // Initialize socket connection
+      const newSocket = io('http://localhost:5000');
+      setSocket(newSocket);
+      
+      // Join user room
+      newSocket.emit('join', parsedUser._id);
+      
+      // Listen for new notifications
+      newSocket.on('new_notification', (notification) => {
+        alert(`🔔 ${notification.title}: ${notification.message}`);
+        fetchMeetings(); // Refresh meetings list
+      });
+      
+      return () => newSocket.close();
+    }
+  }, []);
+
+  // 3. FETCH: Get meetings from backend
   const fetchMeetings = async () => {
     try {
-      const token = localStorage.getItem('token'); // Assumes token is stored on login
-      const res = await axios.get('http://localhost:5000/api/sync/list', {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('http://localhost:5000/api/meetings/list', {
         headers: { 'x-auth-token': token }
       });
       setMeetings(res.data);
     } catch (err) {
-      console.error("Error fetching meetings:", err);
+      console.error('Error fetching meetings:', err);
     }
   };
 
@@ -26,32 +59,27 @@ const Meeting = () => {
     fetchMeetings();
   }, []);
 
-  // 3. SYNC: Trigger the backend IMAP sync
-  const handleImapSync = async (e) => {
+  // 4. CREATE MEETING: Handle form submission
+  const handleCreateMeeting = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/sync/imap-sync', syncData, {
+      const res = await axios.post('http://localhost:5000/api/meetings/create', formData, {
         headers: { 'x-auth-token': token }
       });
       alert(res.data.msg);
-      fetchMeetings(); // Refresh list after successful sync
-      setSyncVisible(false);
+      fetchMeetings(); // Refresh list after successful creation
+      setShowCreateForm(false);
+      setFormData({ topic: '', meetingLink: '', meetingTime: '' });
     } catch (err) {
-      alert("Sync failed. Ensure you are using a 16-digit App Password.");
+      alert(err.response?.data?.msg || 'Failed to create meeting');
     } finally {
       setLoading(false);
     }
   };
 
-  // 4. CANCEL: Locally remove from UI (Ideally, add a delete route in backend later)
-  const handleCancel = (id) => {
-    if (window.confirm("Remove this meeting from your view?")) {
-      setMeetings(meetings.filter((m) => m._id !== id));
-    }
-  };
-
+  // 5. COPY TO CLIPBOARD
   const copyToClipboard = (text) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
@@ -63,36 +91,50 @@ const Meeting = () => {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <h2>🤝 Scheduled Meetings</h2>
-          <p>Live meetings synced from your email inbox.</p>
+          <p>Admin-managed meetings with real-time notifications.</p>
         </div>
-        <button 
-          onClick={() => setSyncVisible(!syncVisible)} 
-          style={styles.syncToggleBtn}
-        >
-          {syncVisible ? "Close Sync" : "🔄 Sync Email"}
-        </button>
+        {user?.role === 'admin' && (
+          <button 
+            onClick={() => setShowCreateForm(!showCreateForm)} 
+            style={styles.createToggleBtn}
+          >
+            {showCreateForm ? "Cancel" : "� Create Meeting"}
+          </button>
+        )}
       </div>
 
-      {/* SYNC FORM SECTION */}
-      {syncVisible && (
-        <div className="card" style={styles.syncFormCard}>
-          <h4>Connect via IMAP (Gmail/Outlook)</h4>
-          <form onSubmit={handleImapSync} style={styles.syncForm}>
+      {/* CREATE MEETING FORM - ADMIN ONLY */}
+      {showCreateForm && user?.role === 'admin' && (
+        <div className="card" style={styles.createFormCard}>
+          <h4>Create New Meeting</h4>
+          <form onSubmit={handleCreateMeeting} style={styles.createForm}>
             <input 
-              type="email" placeholder="Email Address" required 
+              type="text" 
+              placeholder="Meeting Topic (Optional)" 
               style={styles.input}
-              onChange={e => setSyncData({...syncData, email: e.target.value})} 
+              value={formData.topic}
+              onChange={e => setFormData({...formData, topic: e.target.value})} 
             />
             <input 
-              type="password" placeholder="16-digit App Password" required 
+              type="url" 
+              placeholder="Meeting Link (Required)" 
+              required
               style={styles.input}
-              onChange={e => setSyncData({...syncData, appPassword: e.target.value})} 
+              value={formData.meetingLink}
+              onChange={e => setFormData({...formData, meetingLink: e.target.value})} 
             />
-            <button type="submit" disabled={loading} style={styles.startSyncBtn}>
-              {loading ? "Syncing..." : "Start Sync"}
+            <input 
+              type="datetime-local" 
+              placeholder="Meeting Time" 
+              required
+              style={styles.input}
+              value={formData.meetingTime}
+              onChange={e => setFormData({...formData, meetingTime: e.target.value})} 
+            />
+            <button type="submit" disabled={loading} style={styles.createBtn}>
+              {loading ? "Creating..." : "Create Meeting"}
             </button>
           </form>
-          <small style={{color: '#7f8c8d'}}>Tip: Use an 'App Password' from your Google Account Security settings.</small>
         </div>
       )}
 
@@ -102,29 +144,42 @@ const Meeting = () => {
           meetings.map((meet) => (
             <div key={meet._id} className="card" style={styles.meetingCard}>
               
-              {/* LEFT SIDE: Received Time & Subject */}
+              {/* LEFT SIDE: Meeting Time & Topic */}
               <div style={{ textAlign: "left", flex: 1 }}>
                 <h3 style={{ margin: "0", color: "#2c3e50" }}>
-                  {new Date(meet.receivedDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(meet.meetingTime).toLocaleString([], { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
                 </h3>
-                <p style={{ margin: "5px 0", fontWeight: "bold", fontSize: "16px" }}>{meet.subject}</p>
-                <span style={styles.badge}>📧 From: {meet.sender}</span>
+                <p style={{ margin: "5px 0", fontWeight: "bold", fontSize: "16px" }}>
+                  {meet.topic || 'Meeting'}
+                </p>
+                <span style={styles.badge}>� Created by: {meet.createdBy?.name || 'Admin'}</span>
               </div>
 
-              {/* MIDDLE: Credentials / Link Details */}
-              <div style={styles.credentialsBox}>
-                <div style={styles.credRow}>
-                  <span style={{color: '#7f8c8d'}}>Platform:</span> 
-                  <span style={styles.credValue}>{meet.platform}</span>
+              {/* MIDDLE: Meeting Details */}
+              <div style={styles.detailsBox}>
+                <div style={styles.detailRow}>
+                  <span style={{color: '#7f8c8d'}}>Status:</span> 
+                  <span style={styles.detailValue}>
+                    {new Date(meet.meetingTime) > new Date() ? (
+                      <span style={{color: '#27ae60'}}>🟢 Upcoming</span>
+                    ) : (
+                      <span style={{color: '#e74c3c'}}>🔴 Past</span>
+                    )}
+                  </span>
                 </div>
-                <div style={styles.credRow}>
+                <div style={styles.detailRow}>
                   <span style={{color: '#7f8c8d'}}>Meeting Link:</span> 
                   <span 
                     style={meet.meetingLink ? styles.linkValue : styles.noLink} 
                     onClick={() => copyToClipboard(meet.meetingLink)}
                     title={meet.meetingLink ? "Click to Copy" : "No link found"}
                   >
-                    {meet.meetingLink ? "Click to Copy Link 📋" : "None Detected"}
+                    {meet.meetingLink ? "Click to Copy Link 📋" : "None Provided"}
                   </span>
                 </div>
               </div>
@@ -146,9 +201,10 @@ const Meeting = () => {
                 
                 <button 
                   style={styles.cancelBtn} 
-                  onClick={() => handleCancel(meet._id)}
+                  onClick={() => copyToClipboard(meet.meetingLink)}
+                  disabled={!meet.meetingLink}
                 >
-                  Dismiss
+                  {meet.meetingLink ? "Copy Link" : "No Link"}
                 </button>
               </div>
 
@@ -156,7 +212,9 @@ const Meeting = () => {
           ))
         ) : (
           <div className="card">
-            <p style={{ color: "gray" }}>{loading ? "Fetching meetings..." : "No meetings found. Click 'Sync Email' to fetch from your inbox! 📬"}</p>
+            <p style={{ color: "gray" }}>
+              {loading ? "Loading meetings..." : "No meetings found. Admin users can create new meetings! �"}
+            </p>
           </div>
         )}
       </div>
@@ -179,7 +237,7 @@ const styles = {
     borderRadius: "10px",
     boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
   },
-  syncToggleBtn: {
+  createToggleBtn: {
     padding: "10px 15px",
     background: "#3498db",
     color: "white",
@@ -188,15 +246,16 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold"
   },
-  syncFormCard: {
+  createFormCard: {
     background: "#fdfdfd",
     border: "1px solid #e0e0e0",
     padding: "20px",
     marginTop: "10px",
     borderRadius: "8px"
   },
-  syncForm: {
+  createForm: {
     display: "flex",
+    flexDirection: "column",
     gap: "10px",
     margin: "10px 0"
   },
@@ -206,7 +265,7 @@ const styles = {
     border: "1px solid #ccc",
     flex: 1
   },
-  startSyncBtn: {
+  createBtn: {
     padding: "10px 20px",
     background: "#2ecc71",
     color: "white",
@@ -224,7 +283,7 @@ const styles = {
     display: "inline-block",
     marginTop: "5px"
   },
-  credentialsBox: {
+  detailsBox: {
     backgroundColor: "#f9f9f9",
     border: "1px dashed #bdc3c7",
     padding: "10px",
@@ -232,12 +291,12 @@ const styles = {
     minWidth: "200px",
     fontSize: "13px"
   },
-  credRow: {
+  detailRow: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "4px"
   },
-  credValue: { fontWeight: "bold", color: "#333" },
+  detailValue: { fontWeight: "bold", color: "#333" },
   linkValue: { fontWeight: "bold", color: "#2980b9", cursor: "pointer" },
   noLink: { color: "#95a5a6", fontStyle: "italic" },
   actionButtons: {
