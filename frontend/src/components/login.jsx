@@ -26,7 +26,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Your API Call
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const res = await axios.post('https://c-syncflow-mxgm.onrender.com/api/auth/login', { email, password });
       
       // Save token and redirect
       localStorage.setItem('token', res.data.token);

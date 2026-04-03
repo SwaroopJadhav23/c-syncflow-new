@@ -35,7 +35,7 @@ const Meeting = () => {
       setUser(parsedUser);
       
       // Initialize socket connection
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io('https://c-syncflow-mxgm.onrender.com');
       setSocket(newSocket);
       
       // Join user room
@@ -55,7 +55,7 @@ const Meeting = () => {
   const fetchMeetings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/meetings/list', {
+      const res = await axios.get('https://c-syncflow-mxgm.onrender.com/api/meetings/list', {
         headers: { 'x-auth-token': token }
       });
       setMeetings(res.data);
@@ -74,7 +74,7 @@ const Meeting = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/meetings/create', formData, {
+      const res = await axios.post('https://c-syncflow-mxgm.onrender.com/api/meetings/create', formData, {
         headers: { 'x-auth-token': token }
       });
       alert(res.data.msg);

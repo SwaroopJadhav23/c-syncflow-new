@@ -58,10 +58,10 @@ const Register = () => {
     setIsLoading(true);
     try {
       // 2. Send data to Backend
-      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await axios.post('https://c-syncflow-mxgm.onrender.com/api/auth/register', formData);
       
       // Success
-      alert(response.data.msg || "Registration Successful!");
+      alert(res.data.msg || "Registration Successful!");
       navigate('/login');
     } catch (err) {
       // Error Handling
