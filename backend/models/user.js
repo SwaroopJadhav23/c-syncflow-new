@@ -2,6 +2,12 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   // Name to display
+  name: { 
+    type: String, 
+    required: true 
+  },
+  
+  // Username (legacy compatibility)
   username: { 
     type: String, 
     required: true 

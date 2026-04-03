@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import io from 'socket.io-client';
+// import io from 'socket.io-client'; // Temporarily disabled
+
+// Fallback socket implementation
+const fallbackSocket = {
+  emit: () => {},
+  on: () => {},
+  close: () => {}
+};
+
+const io = (url) => fallbackSocket; // Simple fallback
 import RemarksBoard from '../components/remarksboard';
 
 const Meeting = () => {

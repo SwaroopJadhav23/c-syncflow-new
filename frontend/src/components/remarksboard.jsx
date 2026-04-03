@@ -1,26 +1,37 @@
 import React, { useRef } from "react";
-import { ReactSketchCanvas } from "react-sketch-canvas";
+// import { ReactSketchCanvas } from "react-sketch-canvas"; // Temporarily disabled
+
+// Simple canvas fallback component
+const SimpleCanvas = ({ canvasRef }) => (
+  <div style={{ border: "2px solid #ccc", borderRadius: "8px", padding: "10px" }}>
+    <textarea
+      ref={canvasRef}
+      placeholder="Write your remarks here..."
+      style={{
+        width: "100%",
+        height: "150px",
+        border: "none",
+        outline: "none",
+        resize: "none",
+        fontSize: "14px"
+      }}
+    />
+  </div>
+);
 
 const RemarksBoard = ({ pageName }) => {
   const canvasRef = useRef(null);
 
   const clearCanvas = () => {
-    canvasRef.current.clearCanvas();
+    canvasRef.current.value = "";
   };
 
   return (
     <div style={{ marginTop: "20px", border: "1px solid #ddd", padding: "15px", borderRadius: "8px", background: "#fff" }}>
       <h4>📝 Personal Remarks for {pageName}</h4>
-      <p style={{ fontSize: "12px", color: "gray" }}>Draw quick notes or scribbles here.</p>
+      <p style={{ fontSize: "12px", color: "gray" }}>Write your remarks here...</p>
       
-      <ReactSketchCanvas
-        ref={canvasRef}
-        style={{ border: "1px solid #ccc", borderRadius: "5px" }}
-        width="100%"
-        height="200px"
-        strokeWidth={3}
-        strokeColor="black"
-      />
+      <SimpleCanvas canvasRef={canvasRef} />
       
       <div style={{ marginTop: "10px" }}>
         <button onClick={clearCanvas} style={btnStyle}>Clear Board</button>
